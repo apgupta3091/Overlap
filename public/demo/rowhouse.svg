@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Illustration of an apartment interior (demo)">
+<rect width="800" height="600" fill="#F0E2CF"/>
+<rect y="430" width="800" height="170" fill="#B48A62"/>
+<rect y="426" width="800" height="8" fill="#FFFFFF" opacity=".55"/>
+<rect x="470" y="80" width="220" height="250" fill="#E6D3B5"/>
+<rect x="470" y="80" width="220" height="250" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+<line x1="580.0" y1="80" x2="580.0" y2="330" stroke="#FFFFFF" stroke-width="7"/>
+<line x1="470" y1="205.0" x2="690" y2="205.0" stroke="#FFFFFF" stroke-width="7"/>
+<ellipse cx="400" cy="520" rx="290" ry="50" fill="#C77D5B" opacity=".85"/>
+<rect x="90" y="250" width="260" height="180" fill="#E6D8C3"/><rect x="80" y="240" width="280" height="18" fill="#FFFFFF"/>
+<rect x="150" y="320" width="140" height="110" fill="#3B302A"/><path d="M200 420 q20 -60 20 -20 q15 -35 25 20z" fill="#E59A4C"/>
+<rect x="140" y="140" width="160" height="90" fill="#556B5D"/><rect x="152" y="152" width="136" height="66" fill="#E6D3B5"/>
+</svg>

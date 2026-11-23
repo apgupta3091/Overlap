@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Illustration of an apartment interior (demo)">
+<rect width="800" height="600" fill="#EFE6D8"/>
+<rect y="430" width="800" height="170" fill="#A98462"/>
+<rect y="426" width="800" height="8" fill="#FFFFFF" opacity=".55"/>
+<rect x="470" y="80" width="220" height="250" fill="#CFE0C9"/>
+<rect x="470" y="80" width="220" height="250" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+<line x1="580.0" y1="80" x2="580.0" y2="330" stroke="#FFFFFF" stroke-width="7"/>
+<line x1="470" y1="205.0" x2="690" y2="205.0" stroke="#FFFFFF" stroke-width="7"/>
+<ellipse cx="400" cy="520" rx="290" ry="50" fill="#7D9A6B" opacity=".85"/>
+<g transform="translate(130 430) scale(1.4)">
+<ellipse cx="0" cy="-70" rx="28" ry="44" fill="#4F7A58"/><ellipse cx="-26" cy="-50" rx="20" ry="34" fill="#5F8E67" transform="rotate(-25 -26 -50)"/>
+<ellipse cx="26" cy="-50" rx="20" ry="34" fill="#3F6A4A" transform="rotate(25 26 -50)"/>
+<path d="M-24 -18 h48 l-7 40 h-34z" fill="#B4532A"/></g>
+<g transform="translate(250 430) scale(1.0)">
+<ellipse cx="0" cy="-70" rx="28" ry="44" fill="#4F7A58"/><ellipse cx="-26" cy="-50" rx="20" ry="34" fill="#5F8E67" transform="rotate(-25 -26 -50)"/>
+<ellipse cx="26" cy="-50" rx="20" ry="34" fill="#3F6A4A" transform="rotate(25 26 -50)"/>
+<path d="M-24 -18 h48 l-7 40 h-34z" fill="#8A5A44"/></g>
+<g transform="translate(720 430) scale(1.2)">
+<ellipse cx="0" cy="-70" rx="28" ry="44" fill="#4F7A58"/><ellipse cx="-26" cy="-50" rx="20" ry="34" fill="#5F8E67" transform="rotate(-25 -26 -50)"/>
+<ellipse cx="26" cy="-50" rx="20" ry="34" fill="#3F6A4A" transform="rotate(25 26 -50)"/>
+<path d="M-24 -18 h48 l-7 40 h-34z" fill="#D98E6B"/></g>
+<rect x="330" y="350" width="120" height="90" rx="10" fill="#8A5A44"/><rect x="330" y="300" width="120" height="60" rx="10" fill="#8A5A44" opacity=".8"/>
+</svg>

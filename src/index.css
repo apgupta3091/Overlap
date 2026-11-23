@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Georgia, Cambria, serif;
+
+  --color-canvas: #faf7f2;
+  --color-surface: #ffffff;
+  --color-sunken: #f3eee6;
+  --color-ink: #1f1d1a;
+  --color-ink-muted: #5c5750;
+  --color-ink-faint: #7a746b;
+  --color-line: #e6dfd4;
+  --color-line-strong: #cfc6b8;
+
+  --color-accent: #b4532a;
+  --color-accent-strong: #933f1c;
+  --color-accent-soft: #f7e8df;
+
+  --color-good: #2f6b4f;
+  --color-good-soft: #e5f0e9;
+  --color-warn: #8a5a00;
+  --color-warn-soft: #f8edd5;
+  --color-bad: #a3302a;
+  --color-bad-soft: #f8e4e2;
+
+  --shadow-card: 0 1px 2px rgb(31 29 26 / 0.05), 0 2px 8px rgb(31 29 26 / 0.04);
+  --shadow-raised: 0 4px 12px rgb(31 29 26 / 0.08), 0 12px 32px rgb(31 29 26 / 0.08);
+}
+
+@layer base {
+  html {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Strong, consistent keyboard focus indicator. */
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-up {
+  animation: fade-up 180ms ease-out both;
+}
