@@ -19,7 +19,8 @@ Each entry records what was checked, when, and against which source. Re-verify a
 - `src/domain/**` is pure TypeScript: no DOM, no React, no Vite-only APIs. Relative imports use explicit `.ts` extensions (`allowImportingTsExtensions` is on), and the only bare imports allowed are `temporal-polyfill` and `zod`. Deno can then load these files unchanged, with an import map (`deno.json`) for the two npm packages.
 - Supabase documents `supabase/functions/_shared` as the standard location for shared code. Its changelog (Feb 2025) says imports from outside `supabase/` are supported at deploy time, but community reports show `functions serve` failing on them locally.
 - **Verified 2026-11-24:** `src/domain/schedule.ts` runs and passes `deno check` unchanged with a `deno.json` import map (`temporal-polyfill` → `npm:temporal-polyfill@1.0.8`).
-- **Plan:** Chunk 8 tries a relative import of `src/domain` from the function first. If local serve or deploy rejects it, a `scripts/sync-shared.mjs` copies `src/domain` into `supabase/functions/_shared/domain`, and CI checks the copy is in sync. Either way there's one source of truth.
+- **Verified 2026-11-24 (Chunk 8, local):** the Edge Runtime (supabase-edge-runtime 1.79.3, Deno 2.1.4) compiles and runs `supabase/functions/api` importing `../../../src/domain/*.ts` directly. `deno check` passes in `denoland/deno:2.1.4`. **Still to verify at first deploy (Chunk 14):** that `supabase functions deploy` bundles files outside `supabase/`.
+- **Fallback plan (if deploy rejects it):** Chunk 8 tries a relative import of `src/domain` from the function first. If local serve or deploy rejects it, a `scripts/sync-shared.mjs` copies `src/domain` into `supabase/functions/_shared/domain`, and CI checks the copy is in sync. Either way there's one source of truth.
 
 ## D4 — Backend: Supabase (Postgres + one Edge Function), free plan
 *Checked 2026-11-24 at supabase.com/pricing and /docs/guides/functions/limits.*
@@ -57,7 +58,7 @@ React 19, Vite 8, TypeScript 7 (strict, `noUncheckedIndexedAccess`), Tailwind 4,
 ## D8 — Database access: private schema, direct connection, SQL functions for writes
 *Decided 2026-11-24.*
 - All tables live in the `overlap` schema. It is **not** in `[api] schemas`, and `anon`/`authenticated` have no usage, table, or function privileges. RLS is on with no policies. pgTAP checks all of this, and a mutation run (granting anon access) confirmed those tests fail when access is wrong.
-- The Edge Function will connect directly to Postgres (`npm:postgres` with the function's `SUPABASE_DB_URL`) rather than through PostgREST/supabase-js. **To verify in Chunk 8:** that this variable is available locally and in production, and whether to use the transaction pooler (`prepare: false`).
+- The Edge Function connects directly to Postgres with postgres.js and `SUPABASE_DB_URL`, not through PostgREST/supabase-js. **Verified locally (Chunk 8):** the variable is injected (`supabase_db_overlap:5432`, user `postgres`). `npm:postgres` (3.4.7 and 4.1.1) fails in the Edge Runtime with `Not implemented: LibuvStreamWrap.prototype.useUserBuffer`. The Deno-native build (`https://deno.land/x/postgresjs@v3.4.7/mod.js`, pinned in `deno.json` and locked in `deno.lock`) works. We use `prepare: false` so the transaction pooler works. **At deploy:** confirm what production `SUPABASE_DB_URL` points to (direct or pooler).
 - Writes that must be atomic are SQL functions:
   - `create_event` inserts the event, ranges, and slots from the `buildSchedule` output and re-checks tiling and expiry.
   - `submit_response` creates or edits a response. It takes a `FOR UPDATE` lock on the event row, so the 50-response cap holds: 60 concurrent submits gave exactly 50 rows.
@@ -67,3 +68,14 @@ React 19, Vite 8, TypeScript 7 (strict, `noUncheckedIndexedAccess`), Tailwind 4,
 - The database stores only SHA-256 hashes of admin and edit tokens; raw tokens never reach it.
 - `events.revision` increments on every response write, so Chunk 9 can poll cheaply.
 - Constraints repeat the invariants that must never break, even if the function has a bug: label trimming and length, durations, 30-minute slots, ≤12h ranges, quarter-hour UTC boundaries (Nepal +05:45 local half-hours fall on :15/:45 UTC), and composite foreign keys so a response can only reference slots of its own event.
+
+## D9 — API shape and token security (Chunk 8)
+*Decided 2026-11-24.* One Edge Function, `api`, with `verify_jwt = false`: the app has no accounts, so Supabase JWTs don't apply.
+- **Routes:** `POST /events` → `{ publicId, adminToken }`; `GET /events/:publicId` → snapshot; `POST /events/:publicId/responses` → `{ response, editToken }`; `PUT /events/:publicId/responses/:id` with `Authorization: Bearer <editToken>` → `{ response }`.
+- **Tokens:** 256-bit CSPRNG secrets, base64url-encoded (43 chars). They're returned only once, at creation, and travel only in the `Authorization` header, never in URLs. The database stores only SHA-256 hashes. Malformed tokens and response ids are refused (403) before the body is read or the database is touched. An unknown response id gets the same 403 as a wrong token, so the API doesn't reveal which ids exist.
+- **Validation:** request shape is checked with zod (400), then the shared domain rules (`buildSchedule`, field checks), with schedule issues returned as 422. The SQL functions check again as a backstop.
+- **Origins:** browser requests from origins outside `ALLOWED_ORIGINS` get 403 before any work is done. Requests without an `Origin` header (server-to-server, curl) are allowed, because the tokens are what protect the data. Locally, Kong's CORS plugin answers preflight requests and rewrites `Access-Control-Allow-Origin` to `*`. Harmless, since no cookies are used, but the production header must be verified at deploy.
+- **Responses:** always JSON with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`. Bodies are capped at 32 KB (413), and non-JSON is refused (415).
+- **Errors** map to the client's codes: `invalid` 422, `not_found` 404, `forbidden` 403, `conflict` 409 (event closed), `limit_reached` 409, `unavailable` 503. Unexpected errors return a generic 503. Logs record method, status, code, and timing; for unexpected errors they also record the error's class name. They never include bodies, headers, tokens, or error messages.
+- **Public ids** are 12 base62 characters (~71 bits), with retry on collision.
+- Rate limiting and abuse controls come in Chunk 12.

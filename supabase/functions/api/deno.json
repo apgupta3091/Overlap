@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "postgres": "https://deno.land/x/postgresjs@v3.4.7/mod.js",
+    "temporal-polyfill": "npm:temporal-polyfill@1.0.8",
+    "zod": "npm:zod@4.6.7"
+  }
+}

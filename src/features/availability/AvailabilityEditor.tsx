@@ -12,7 +12,7 @@ import { getCredentials } from '../../data/credentials'
 import { clearDraft, loadDraft, saveDraft } from '../../data/drafts'
 import { errorMessage } from '../../data/errors'
 import { useSaveResponse } from '../../data/hooks'
-import { checkName } from '../../data/validate'
+import { checkName } from '../../domain/fields.ts'
 import { AvailabilityGrid, type Brush } from './AvailabilityGrid'
 
 interface Props {

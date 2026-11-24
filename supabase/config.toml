@@ -398,8 +398,9 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+# Local only: the Vite dev and preview servers may call the API. Production sets this as a function secret.
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173"
 
 [analytics]
 enabled = true
@@ -428,3 +429,7 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# The API is public (no accounts); it authenticates edits with its own bearer tokens, not Supabase JWTs.
+[functions.api]
+verify_jwt = false

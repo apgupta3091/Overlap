@@ -1,5 +1,5 @@
-// Input checks shared by the creation form and the local service (the server repeats them in Chunk 8).
-import { LIMITS } from '../domain/limits.ts'
+// Field rules shared by the creation/response forms, the local service, and the Edge Function.
+import { LIMITS } from './limits.ts'
 
 export function cleanText(value: string): string {
   return value.replace(/\s+/g, ' ').trim()

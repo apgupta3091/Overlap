@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.functions.tsbuildinfo",
+    "types": []
+  },
+  "include": ["supabase/functions/api/handler.ts", "supabase/functions/api/handler.test.ts", "supabase/functions/api/tokens.ts", "supabase/functions/api/db.types.ts"]
+}

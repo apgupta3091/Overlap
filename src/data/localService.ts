@@ -6,11 +6,11 @@ import { LIMITS } from '../domain/limits.ts'
 import { buildSchedule } from '../domain/schedule.ts'
 import { Temporal } from '../domain/time.ts'
 import type { OverlapEvent, ParticipantResponse } from '../domain/types.ts'
-import { randomId } from '../lib/ids'
+import { randomId } from '../domain/ids.ts'
 import { ServiceError } from './errors'
 import type { CreateEventInput, EventService, EventSnapshot, ResponseInput } from './service'
 import { readJson, writeJson, type KeyValueStore } from './store'
-import { checkDescription, checkExpected, checkName, checkTitle, cleanText } from './validate'
+import { checkDescription, checkExpected, checkName, checkTitle, cleanText } from '../domain/fields.ts'
 
 export interface StoredEvent {
   event: OverlapEvent

@@ -15,7 +15,10 @@
     "db:start": "supabase start -x gotrue,realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:stop": "supabase stop"
+    "db:stop": "supabase stop",
+    "api:start": "supabase start -x gotrue,realtime,storage-api,imgproxy,mailpit,postgrest,postgres-meta,studio,logflare,vector,supavisor",
+    "api:smoke": "node scripts/smoke-api.mjs",
+    "api:check": "docker run --rm -v \"$PWD\":/app -w /app/supabase/functions/api denoland/deno:2.1.4 deno check index.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.8",

@@ -48,7 +48,7 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [ ] Follow-up for Chunk 14: JS bundle is 557 kB min / 172 kB gzip (Temporal polyfill + zod); code-split the routes
 
 ## Week 2 — Shared persistence
-- [x] **7. Database schema & migrations** *(awaiting review)*
+- [x] **7. Database schema & migrations** *(reviewed)*
   - [x] `supabase init`; migration `20261124170000_overlap_schema.sql`: `events`, `event_ranges`, `event_slots`, `responses`, `response_slots` in the private `overlap` schema (D8)
   - [x] Constraints: trimmed and length-limited labels, durations, expected 2–50, status/final-time consistency, 30-min slots on quarter-hour UTC boundaries, ≤12h ranges, unique dates/sort order/start per event, composite FKs (no cross-event slots or responses), 32-byte token hashes
   - [x] Functions: `create_event` (atomic, re-checks tiling and expiry), `submit_response` (create/edit with token hash, replaces availability, 50 cap under a row lock, bumps event revision), `get_event` (sanitized JSON in the domain shape, expired = missing), `delete_expired_events`
@@ -56,7 +56,15 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [x] pgTAP: 124 assertions (`npm run db:test`), plus a mutation check proving the privilege tests fail if anon is granted access
   - [x] Concurrency: 60 parallel submissions → exactly 50 stored, 10 `limit_reached`
   - [x] Scripts: `db:start` (Postgres only), `db:reset`, `db:test`, `db:stop`
-- [ ] 8. API (Edge Function) & token security
+- [x] **8. API (Edge Function) & token security** *(awaiting review)*
+  - [x] `supabase/functions/api`: four routes (create event, read event, add response, edit response) on the Chunk 7 SQL functions (D9)
+  - [x] Handler is pure web-standard TS (`handler.ts`), tested in Vitest with an in-memory fake database. Deno entry point (`index.ts`) and postgres.js adapter (`db.ts`)
+  - [x] Shared code: `src/domain` imported directly by relative path; validators and ids moved into `src/domain` (`fields.ts`, `ids.ts`)
+  - [x] Tokens: 256-bit, returned once, sent only as a Bearer header, stored only as SHA-256 hashes; malformed tokens and ids refused before any work
+  - [x] Origin allowlist (403), JSON-only bodies ≤32 KB, no-store and nosniff headers, error mapping, and logs that never include tokens, bodies, or error messages
+  - [x] Verified D3 and D8 locally: relative imports work in the Edge Runtime; `SUPABASE_DB_URL` is injected; `npm:postgres` fails there, so we use the pinned Deno-native postgres.js build
+  - [x] Tests: 14 handler tests (99 Vitest total), `deno check` (`npm run api:check`), and 19 end-to-end smoke checks against the real function and database (`npm run api:smoke`), including "only hashes in the DB" and "no tokens in logs"
+  - [ ] At first deploy (Chunk 14): confirm `functions deploy` bundles `src/domain`, what production `SUPABASE_DB_URL` points to, and the production CORS headers
 - [ ] 9. Live client: service layer, credentials, sync
 - [ ] 10. Integration tests (security)
 
