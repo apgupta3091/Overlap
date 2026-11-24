@@ -26,19 +26,19 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [x] `windows.ts`: contiguous full-length windows within one range, whole-window attend/prefer scoring, ranking (attendees → preferrers → earliest UTC), greedy non-overlapping top 3, never a window nobody can attend, `findWindow` for manual/server finalize checks; algorithm documented in the file header
   - [x] `availability.ts`: compact payload (`available[]`/`preferred[]`), strict server parse (rejects unknown/cross-event ids, duplicates, conflicts), lenient draft restore, submission rule (≥1 slot, or "none work" with none)
   - [x] 24 new unit tests (61 total); typecheck, lint, and `deno check` green
-- [x] **4. Event creation UI** *(awaiting review)*
+- [x] **4. Event creation UI** *(reviewed)*
   - [x] `/new`: title, organizer name, description (optional, counter), meeting length, expected count (optional), timezone (browser default; IANA list with offsets)
   - [x] Date rows: up to 7, each with a date + half-hour From/Until (`24:00` = end of day); "Add another date" uses the next day with the same times; remove a row
   - [x] Validation through `buildSchedule`: problems appear on the matching date row, whole-schedule problems below; field errors show inline after the first submit and focus moves to the first invalid field; live "N dates, M half-hour slots" summary
   - [x] Data layer: `EventService` contract plus `LocalEventService`, which enforces the server's rules (D7); credentials and drafts per event; TanStack Query hooks
   - [x] After creating, you land on `/e/:id` with a share panel (selectable link + copy) that honestly says the link is local-only for now
-- [x] **5. Availability editor** *(awaiting review)*
+- [x] **5. Availability editor** *(reviewed)*
   - [x] Day × time table in the *display* timezone (`lib/time/grid.ts`): empty cells where there's no slot, gaps marked, repeated fall-back hours get their own row
   - [x] Mouse/pen: press and drag to paint (the first cell decides add or clear). Touch: tap, so the page still scrolls. Keyboard: one tab stop, arrows/Home/End/Ctrl+Home/End, Space/Enter toggles
   - [x] Available/Preferred mode, "Clear all", "None of these times work" (disables the grid but keeps your marks), selection summary, and a warning when no marked stretch covers a full meeting
   - [x] Draft autosave per event with restore + discard; editing your submitted response from the same browser (edit token); sticky submit bar on mobile
   - [x] Never color alone: check and star icons, plus full accessible names ("Wednesday, November 25, 4:00 – 4:30 PM: preferred")
-- [x] **6. Results UI & local demo** *(awaiting review)*
+- [x] **6. Results UI & local demo** *(reviewed)*
   - [x] Response count (with expected count), top-3 non-overlapping suggestions with attendance wording, prefer count, who can't make it, and "Show on grid" highlighting
   - [x] Heatmap: counts in every cell, preferred marker, legend; selecting a cell shows Prefer / Available / Can't make it names; participant list with "(you)" and duplicate-name labels
   - [x] Display-timezone switcher for both views (browser and event timezones pinned first); cross-midnight ranges read "11:00 PM – 12:00 AM (next day)"
@@ -48,7 +48,14 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [ ] Follow-up for Chunk 14: JS bundle is 557 kB min / 172 kB gzip (Temporal polyfill + zod); code-split the routes
 
 ## Week 2 — Shared persistence
-- [ ] 7. Database schema & migrations
+- [x] **7. Database schema & migrations** *(awaiting review)*
+  - [x] `supabase init`; migration `20261124170000_overlap_schema.sql`: `events`, `event_ranges`, `event_slots`, `responses`, `response_slots` in the private `overlap` schema (D8)
+  - [x] Constraints: trimmed and length-limited labels, durations, expected 2–50, status/final-time consistency, 30-min slots on quarter-hour UTC boundaries, ≤12h ranges, unique dates/sort order/start per event, composite FKs (no cross-event slots or responses), 32-byte token hashes
+  - [x] Functions: `create_event` (atomic, re-checks tiling and expiry), `submit_response` (create/edit with token hash, replaces availability, 50 cap under a row lock, bumps event revision), `get_event` (sanitized JSON in the domain shape, expired = missing), `delete_expired_events`
+  - [x] Privileges: anon/authenticated get nothing (schema, tables, functions); RLS on, no policies; service_role only
+  - [x] pgTAP: 124 assertions (`npm run db:test`), plus a mutation check proving the privilege tests fail if anon is granted access
+  - [x] Concurrency: 60 parallel submissions → exactly 50 stored, 10 `limit_reached`
+  - [x] Scripts: `db:start` (Postgres only), `db:reset`, `db:test`, `db:stop`
 - [ ] 8. API (Edge Function) & token security
 - [ ] 9. Live client: service layer, credentials, sync
 - [ ] 10. Integration tests (security)

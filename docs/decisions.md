@@ -53,3 +53,17 @@ React 19, Vite 8, TypeScript 7 (strict, `noUncheckedIndexedAccess`), Tailwind 4,
 - The demo uses the same service over an in-memory store, seeded through the real schedule code, so it exercises the same paths and resets on reload.
 - Credentials (admin token, response id + edit token) and availability drafts are stored per event under `overlap:cred:*` / `overlap:draft:*`. Local tokens are stored as-is; the server stores only hashes (Chunk 8).
 - The creation and response forms use plain React state instead of React Hook Form. Date rows are dynamic and validated by `buildSchedule` as a whole, and RHF added complexity without much benefit here.
+
+## D8 — Database access: private schema, direct connection, SQL functions for writes
+*Decided 2026-11-24.*
+- All tables live in the `overlap` schema. It is **not** in `[api] schemas`, and `anon`/`authenticated` have no usage, table, or function privileges. RLS is on with no policies. pgTAP checks all of this, and a mutation run (granting anon access) confirmed those tests fail when access is wrong.
+- The Edge Function will connect directly to Postgres (`npm:postgres` with the function's `SUPABASE_DB_URL`) rather than through PostgREST/supabase-js. **To verify in Chunk 8:** that this variable is available locally and in production, and whether to use the transaction pooler (`prepare: false`).
+- Writes that must be atomic are SQL functions:
+  - `create_event` inserts the event, ranges, and slots from the `buildSchedule` output and re-checks tiling and expiry.
+  - `submit_response` creates or edits a response. It takes a `FOR UPDATE` lock on the event row, so the 50-response cap holds: 60 concurrent submits gave exactly 50 rows.
+  - `get_event` returns the sanitized snapshot in the exact domain shape.
+  - `delete_expired_events` is scheduled in Chunk 12.
+  Functions raise `P0001` with a machine-readable message (`not_found`, `closed`, `forbidden`, `limit_reached`, `invalid`).
+- The database stores only SHA-256 hashes of admin and edit tokens; raw tokens never reach it.
+- `events.revision` increments on every response write, so Chunk 9 can poll cheaply.
+- Constraints repeat the invariants that must never break, even if the function has a bug: label trimming and length, durations, 30-minute slots, ≤12h ranges, quarter-hour UTC boundaries (Nepal +05:45 local half-hours fall on :15/:45 UTC), and composite foreign keys so a response can only reference slots of its own event.
