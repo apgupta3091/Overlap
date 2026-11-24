@@ -21,7 +21,11 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [x] `src/lib/time/display.ts`: grouping by *display*-timezone date with contiguous segments, time/day labels, IANA name + offset label, browser timezone
   - [x] 31 new unit tests (DST for New York and London, Auckland↔LA date split, Kiritimati range separation); typecheck and lint green
   - [x] Domain code runs and passes `deno check` unchanged (`denoland/deno` Docker image)
-- [ ] 3. Results & suggestion algorithm
+- [x] **3. Results & suggestion algorithm** *(awaiting review)*
+  - [x] `results.ts`: per-slot tallies (available includes preferred; "none work" = unavailable everywhere), 0–5 heat level, honest wording ("5 of 6", "All" only when true), expected-count wording, labels for duplicate names ("Sam (2)")
+  - [x] `windows.ts`: contiguous full-length windows within one range, whole-window attend/prefer scoring, ranking (attendees → preferrers → earliest UTC), greedy non-overlapping top 3, never a window nobody can attend, `findWindow` for manual/server finalize checks; algorithm documented in the file header
+  - [x] `availability.ts`: compact payload (`available[]`/`preferred[]`), strict server parse (rejects unknown/cross-event ids, duplicates, conflicts), lenient draft restore, submission rule (≥1 slot, or "none work" with none)
+  - [x] 24 new unit tests (61 total); typecheck, lint, and `deno check` green
 - [ ] 4. Event creation UI
 - [ ] 5. Availability editor (desktop, mobile, keyboard)
 - [ ] 6. Results UI & local demo
