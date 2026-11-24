@@ -18,6 +18,7 @@ Each entry records what was checked, when, and against which source. Re-verify a
 ## D3 — Code shared between client and Edge Function
 - `src/domain/**` is pure TypeScript: no DOM, no React, no Vite-only APIs. Relative imports use explicit `.ts` extensions (`allowImportingTsExtensions` is on), and the only bare imports allowed are `temporal-polyfill` and `zod`. Deno can then load these files unchanged, with an import map (`deno.json`) for the two npm packages.
 - Supabase documents `supabase/functions/_shared` as the standard location for shared code. Its changelog (Feb 2025) says imports from outside `supabase/` are supported at deploy time, but community reports show `functions serve` failing on them locally.
+- **Verified 2026-11-24:** `src/domain/schedule.ts` runs and passes `deno check` unchanged with a `deno.json` import map (`temporal-polyfill` → `npm:temporal-polyfill@1.0.8`).
 - **Plan:** Chunk 8 tries a relative import of `src/domain` from the function first. If local serve or deploy rejects it, a `scripts/sync-shared.mjs` copies `src/domain` into `supabase/functions/_shared/domain`, and CI checks the copy is in sync. Either way there's one source of truth.
 
 ## D4 — Backend: Supabase (Postgres + one Edge Function), free plan

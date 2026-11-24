@@ -11,7 +11,16 @@ Plan: 14 chunks, with a review after each. Decisions are in `docs/decisions.md`.
   - [x] `Referrer-Policy: no-referrer` meta set site-wide
   - [x] Decisions D1–D6 recorded; Temporal DST `reject` behavior checked locally
   - [x] Chromium check at 375px and 1280px: no overflow, no console errors
-- [ ] 2. Time & slot domain
+- [x] **2. Time & slot domain**
+  - [x] `src/domain/{types,limits,time,schedule}.ts`: shared with the server, pure TS, explicit `.ts` imports
+  - [x] Local→UTC conversion via Temporal `disambiguation: 'reject'`, telling nonexistent and ambiguous times apart
+  - [x] Range rules: 30-min boundaries, ≤12h, no overnight, `24:00` = end of day, at least the meeting length; each slot must be exactly 30 real minutes, otherwise the range is reported as `crosses_dst`
+  - [x] Date rules: 1–7 unique dates, ≤30-day span, not in the past in the *event* timezone, today's range must not have ended
+  - [x] Slot generation (global `sortOrder`) and `expiresAt` = last range end + 30 days
+  - [x] Plain-language issue messages (`describeIssue`)
+  - [x] `src/lib/time/display.ts`: grouping by *display*-timezone date with contiguous segments, time/day labels, IANA name + offset label, browser timezone
+  - [x] 31 new unit tests (DST for New York and London, Auckland↔LA date split, Kiritimati range separation); typecheck and lint green
+  - [x] Domain code runs and passes `deno check` unchanged (`denoland/deno` Docker image)
 - [ ] 3. Results & suggestion algorithm
 - [ ] 4. Event creation UI
 - [ ] 5. Availability editor (desktop, mobile, keyboard)
