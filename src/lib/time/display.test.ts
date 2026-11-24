@@ -56,6 +56,7 @@ describe('labels', () => {
     expect(formatTime('2027-06-10T06:00:00Z', 'America/Los_Angeles')).toMatch(/^11:00\sPM$/u)
     expect(formatTime('2027-06-10T06:00:00Z', 'Pacific/Auckland')).toMatch(/^6:00\sPM$/u)
     expect(formatTimeRange('2027-06-10T06:00:00Z', '2027-06-10T07:00:00Z', 'Pacific/Auckland')).toMatch(/6:00\s?–\s?7:00\sPM/u)
+    expect(formatTimeRange('2027-06-10T23:00:00Z', '2027-06-11T00:00:00Z', 'UTC')).toMatch(/^11:00\sPM – 12:00\sAM \(next day\)$/u)
     expect(localDateOf('2027-06-10T06:00:00Z', 'America/Los_Angeles')).toBe('2027-06-09')
   })
 

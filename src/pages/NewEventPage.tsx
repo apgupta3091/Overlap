@@ -1,11 +1,16 @@
 import { AppShell } from '../app/AppShell'
+import { CreateEventForm } from '../features/create/CreateEventForm'
 
-/** Stub — implemented in Chunk 4. */
 export function NewEventPage() {
   return (
     <AppShell>
-      <h1 className="text-2xl font-semibold tracking-tight">Create an event</h1>
-      <p className="mt-2 text-ink-muted">Event creation is coming in the next build step.</p>
+      <div className="mx-auto max-w-2xl">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Create an event</h1>
+        <p className="mt-2 text-ink-muted">No account needed. You’ll get a link to share with your group.</p>
+        <div className="mt-8">
+          <CreateEventForm />
+        </div>
+      </div>
     </AppShell>
   )
 }

@@ -46,3 +46,10 @@ The client calls the Edge Function with `fetch`. `@supabase/supabase-js` is **no
 
 ## D6 — Toolchain (reused from the previous project in this repo)
 React 19, Vite 8, TypeScript 7 (strict, `noUncheckedIndexedAccess`), Tailwind 4, React Router 8, TanStack Query 5, React Hook Form + Zod 4, Vitest 5 + Testing Library, Playwright, and oxlint. UI primitives (Button, Dialog with focus trap, Field, States, Toast) were adapted from commit `e9773a6`.
+
+## D7 — Week 1 runs on a local service with the API's contract
+*Decided 2026-11-24.* The UI talks to an `EventService` interface (`src/data/service.ts`): `createEvent`, `getEvent`, `createResponse`, `updateResponse`. Until the Edge Function exists, `LocalEventService` implements it on top of `localStorage`. It enforces the same rules the server will: `buildSchedule`, field limits, strict `parseAvailability`, `checkSubmission`, the 50-response cap, and edit tokens. That way the UI is built against realistic errors. Chunk 9 adds a live implementation behind the same interface.
+- **Consequence:** in this build an event only opens in the browser that created it. The share panel and the not-found page say so plainly.
+- The demo uses the same service over an in-memory store, seeded through the real schedule code, so it exercises the same paths and resets on reload.
+- Credentials (admin token, response id + edit token) and availability drafts are stored per event under `overlap:cred:*` / `overlap:draft:*`. Local tokens are stored as-is; the server stores only hashes (Chunk 8).
+- The creation and response forms use plain React state instead of React Hook Form. Date rows are dynamic and validated by `buildSchedule` as a whole, and RHF added complexity without much benefit here.

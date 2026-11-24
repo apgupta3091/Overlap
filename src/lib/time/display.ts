@@ -37,8 +37,12 @@ export function formatTime(iso: string, tz: string): string {
   return fmt(tz, { hour: 'numeric', minute: '2-digit' }).format(ms(iso))
 }
 
-/** "7:00 – 8:00 PM" */
+/**
+ * "7:00 – 8:00 PM". When the end falls on a later local date (e.g. a window ending at or after
+ * midnight in the display timezone): "11:00 PM – 12:00 AM (next day)", rather than Intl's full dates.
+ */
 export function formatTimeRange(startIso: string, endIso: string, tz: string): string {
+  if (localDateOf(startIso, tz) !== localDateOf(endIso, tz)) return `${formatTime(startIso, tz)} – ${formatTime(endIso, tz)} (next day)`
   return fmt(tz, { hour: 'numeric', minute: '2-digit' }).formatRange(ms(startIso), ms(endIso))
 }
 
